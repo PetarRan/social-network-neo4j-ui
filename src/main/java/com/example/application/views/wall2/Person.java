@@ -4,11 +4,10 @@ public class Person {
 
     private String image;
     private String name;
-    private String date;
+    private boolean travelStatus;
     private String post;
     private String likes;
-    private String comments;
-    private String shares;
+    private String location;
 
     public Person() {
     }
@@ -29,12 +28,12 @@ public class Person {
         this.name = name;
     }
 
-    public String getDate() {
-        return date;
+    public String isTravelStatus() {
+        if(travelStatus) return "Currently Travelling"; else return "Currently at Home";
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTravelStatus(Boolean travelStatus) {
+        this.travelStatus = travelStatus;
     }
 
     public String getPost() {
@@ -53,19 +52,12 @@ public class Person {
         this.likes = likes;
     }
 
-    public String getComments() {
-        return comments;
+    public String getLocation() {
+        return location;
     }
 
-    public void setComments(String comments) {
-        this.comments = comments;
+    public void setLocation(String likes) {
+        this.location = likes;
     }
 
-    public String getShares() {
-        return shares;
-    }
-
-    public void setShares(String shares) {
-        this.shares = shares;
-    }
 }

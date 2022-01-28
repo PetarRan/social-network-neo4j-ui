@@ -15,4 +15,5 @@ public class LeafletMap extends Component implements HasSize {
         getElement().callJsFunction("setView", latitude, longitude, zoomLevel);
     }
 
+
 }

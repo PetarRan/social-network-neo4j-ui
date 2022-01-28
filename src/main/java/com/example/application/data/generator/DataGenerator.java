@@ -33,10 +33,11 @@ public class DataGenerator {
             samplePersonRepositoryGenerator.setData(SamplePerson::setFirstName, DataType.FIRST_NAME);
             samplePersonRepositoryGenerator.setData(SamplePerson::setLastName, DataType.LAST_NAME);
             samplePersonRepositoryGenerator.setData(SamplePerson::setEmail, DataType.EMAIL);
+            samplePersonRepositoryGenerator.setData(SamplePerson::setTravelling, DataType.BOOLEAN_50_50);
+            samplePersonRepositoryGenerator.setData(SamplePerson::setUsername, DataType.TWO_WORDS);
             samplePersonRepositoryGenerator.setData(SamplePerson::setPhone, DataType.PHONE_NUMBER);
             samplePersonRepositoryGenerator.setData(SamplePerson::setDateOfBirth, DataType.DATE_OF_BIRTH);
             samplePersonRepositoryGenerator.setData(SamplePerson::setOccupation, DataType.OCCUPATION);
-            samplePersonRepositoryGenerator.setData(SamplePerson::setImportant, DataType.BOOLEAN_10_90);
             samplePersonRepository.saveAll(samplePersonRepositoryGenerator.create(100, seed));
 
             logger.info("Generated demo data");

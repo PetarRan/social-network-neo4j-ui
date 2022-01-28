@@ -14,19 +14,25 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.TemplateRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
@@ -50,7 +56,7 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
     private Checkbox important;
 
     private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private Button save = new Button("Add", VaadinIcon.USER_CHECK.create());
 
     private BeanValidationBinder<SamplePerson> binder;
 
@@ -58,8 +64,26 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
 
     private SamplePersonService samplePersonService;
 
+    private TextField filterText = new TextField();
+
     public FindDabblersView(@Autowired SamplePersonService samplePersonService) {
         this.samplePersonService = samplePersonService;
+
+        // Configure Grid
+        grid.addColumn(SamplePerson::getFirstName).setAutoWidth(true).setHeader("First Name");
+        grid.addColumn(SamplePerson::getLastName).setAutoWidth(true).setHeader("Last Name");
+        grid.addColumn(SamplePerson::getUsername).setAutoWidth(true).setHeader("Username");
+        grid.addColumn(SamplePerson::isTravelling).setAutoWidth(true).setHeader("Is Travelling?");
+
+
+        grid.setDataProvider(new CrudServiceDataProvider <>(samplePersonService));
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        grid.setHeightFull();
+
+        filterText.setPrefixComponent(VaadinIcon.SEARCH.create());
+        filterText.setPlaceholder("...");
+        filterText.setClearButtonVisible(true);
+
         addClassNames("find-dabblers-view", "flex", "flex-col", "h-full");
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
@@ -69,22 +93,6 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
         createEditorLayout(splitLayout);
 
         add(splitLayout);
-
-        // Configure Grid
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("email").setAutoWidth(true);
-        grid.addColumn("phone").setAutoWidth(true);
-        grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("occupation").setAutoWidth(true);
-        TemplateRenderer<SamplePerson> importantRenderer = TemplateRenderer.<SamplePerson>of(
-                "<iron-icon hidden='[[!item.important]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.important]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
-                .withProperty("important", SamplePerson::isImportant);
-        grid.addColumn(importantRenderer).setHeader("Important").setAutoWidth(true);
-
-        grid.setDataProvider(new CrudServiceDataProvider<>(samplePersonService));
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.setHeightFull();
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -101,6 +109,14 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
 
         // Bind fields. This is where you'd define e.g. validation rules
 
+        filterText.setValueChangeMode(ValueChangeMode.EAGER);
+        filterText.addValueChangeListener(event -> this.onFilterChange(grid));
+        filterText.setSizeFull();
+
+        HeaderRow filterRow = grid.appendHeaderRow();
+
+        filterRow.getCell(grid.getColumns().get(0)).setComponent(filterText);
+
         binder.bindInstanceFields(this);
 
         cancel.addClickListener(e -> {
@@ -109,22 +125,23 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
         });
 
         save.addClickListener(e -> {
-            try {
-                if (this.samplePerson == null) {
-                    this.samplePerson = new SamplePerson();
-                }
-                binder.writeBean(this.samplePerson);
-
-                samplePersonService.update(this.samplePerson);
-                clearForm();
-                refreshGrid();
-                Notification.show("SamplePerson details stored.");
-                UI.getCurrent().navigate(FindDabblersView.class);
-            } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the samplePerson details.");
-            }
+            //TODO Add User as Friend
         });
 
+    }
+
+    private void onFilterChange(Grid<SamplePerson> grid) {
+            ListDataProvider<SamplePerson> listDataProvider = (ListDataProvider<SamplePerson>) grid.getDataProvider();
+            listDataProvider.setFilter(item -> {
+                boolean filterMatch = true;
+
+                if(!filterText.isEmpty()){
+                    filterMatch = item.toString().toLowerCase(Locale.ROOT)
+                            .contains(filterText.getValue().toLowerCase(Locale.ROOT));
+                }
+
+                return filterMatch;
+            });
     }
 
     @Override
@@ -157,14 +174,19 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
 
         FormLayout formLayout = new FormLayout();
         firstName = new TextField("First Name");
+        firstName.setReadOnly(true);
         lastName = new TextField("Last Name");
+        lastName.setReadOnly(true);
         email = new TextField("Email");
+        email.setReadOnly(true);
         phone = new TextField("Phone");
+        phone.setReadOnly(true);
         dateOfBirth = new DatePicker("Date Of Birth");
+        dateOfBirth.setReadOnly(true);
         occupation = new TextField("Occupation");
-        important = new Checkbox("Important");
-        important.getStyle().set("padding-top", "var(--lumo-space-m)");
-        Component[] fields = new Component[]{firstName, lastName, email, phone, dateOfBirth, occupation, important};
+        occupation.setReadOnly(true);
+
+        Component[] fields = new Component[]{firstName, lastName, email, phone, dateOfBirth, occupation};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");
@@ -181,7 +203,7 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
         buttonLayout.setClassName("w-full flex-wrap bg-contrast-5 py-s px-l");
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        save.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         buttonLayout.add(save, cancel);
         editorLayoutDiv.add(buttonLayout);
     }

@@ -1,6 +1,10 @@
 package com.example.application.views.wall2;
 
+import com.example.application.components.leafletmap.LeafletMap;
 import com.example.application.views.MainLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
@@ -10,15 +14,14 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
+
 import java.util.Arrays;
 import java.util.List;
 
-@PageTitle("Wall2")
+@PageTitle("Shared Wall")
 @Route(value = "wall2", layout = MainLayout.class)
+@RouteAlias(value = "", layout = MainLayout.class)
 public class Wall2View extends Div implements AfterNavigationObserver {
 
     Grid<Person> grid = new Grid<>();
@@ -52,9 +55,9 @@ public class Wall2View extends Div implements AfterNavigationObserver {
 
         Span name = new Span(person.getName());
         name.addClassName("name");
-        Span date = new Span(person.getDate());
-        date.addClassName("date");
-        header.add(name, date);
+        Span travelStatus = new Span(person.isTravelStatus());
+        travelStatus.addClassName("date");
+        header.add(name, travelStatus);
 
         Span post = new Span(person.getPost());
         post.addClassName("post");
@@ -64,24 +67,39 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         actions.setSpacing(false);
         actions.getThemeList().add("spacing-s");
 
-        Icon likeIcon = VaadinIcon.HEART.create();
-        likeIcon.addClassName("icon");
+        Button likeIcon = new Button(VaadinIcon.HEART.create());
+        likeIcon.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Span likes = new Span(person.getLikes());
         likes.addClassName("likes");
-        Icon commentIcon = VaadinIcon.COMMENT.create();
-        commentIcon.addClassName("icon");
-        Span comments = new Span(person.getComments());
-        comments.addClassName("comments");
-        Icon shareIcon = VaadinIcon.CONNECT.create();
-        shareIcon.addClassName("icon");
-        Span shares = new Span(person.getShares());
-        shares.addClassName("shares");
 
-        actions.add(likeIcon, likes, commentIcon, comments, shareIcon, shares);
+        Button locationCheck = new Button(person.getLocation() ,VaadinIcon.LOCATION_ARROW_CIRCLE.create());
+        locationCheck.addClickListener(click -> {
+            locationPopUp(person.getLocation());
+        });
+
+        actions.add(likeIcon, likes, locationCheck);
 
         description.add(header, post, actions);
         card.add(image, description);
         return card;
+    }
+
+    private void locationPopUp(String location) {
+        Dialog dialog = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        LeafletMap map = new LeafletMap();
+        map.setView(42.546245, 	1.601554, 10);
+        map.setWidth("700px");
+        map.setHeight("700px");
+
+        dialog.setWidth("800px");
+        dialog.setHeight("800px");
+        dialog.setCloseOnEsc(true);
+        dialog.setCloseOnOutsideClick(true);
+
+        verticalLayout.add(map);
+        dialog.add(verticalLayout);
+        dialog.open();
     }
 
     @Override
@@ -89,67 +107,53 @@ public class Wall2View extends Div implements AfterNavigationObserver {
 
         // Set some data when this view is displayed.
         List<Person> persons = Arrays.asList( //
-                createPerson("https://randomuser.me/api/portraits/men/42.jpg", "John Smith", "May 8",
+                createPerson("https://randomuser.me/api/portraits/men/42.jpg", "John Smith", true,
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/42.jpg", "Abagail Libbie", "May 3",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/women/42.jpg", "Abagail Libbie", true,
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/men/24.jpg", "Alberto Raya", "May 3",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/men/24.jpg", "Alberto Raya", false,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/24.jpg", "Emmy Elsner", "Apr 22",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/women/24.jpg", "Emmy Elsner", true,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/men/76.jpg", "Alf Huncoot", "Apr 21",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/men/76.jpg", "Alf Huncoot", false,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/76.jpg", "Lidmila Vilensky", "Apr 17",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/women/76.jpg", "Lidmila Vilensky", false,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/men/94.jpg", "Jarrett Cawsey", "Apr 17",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/men/94.jpg", "Jarrett Cawsey", false,
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/94.jpg", "Tania Perfilyeva", "Mar 8",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/women/94.jpg", "Tania Perfilyeva", true,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/men/16.jpg", "Ivan Polo", "Mar 5",
+                        "1K", "Belgrade"),
+                createPerson("https://randomuser.me/api/portraits/men/16.jpg", "Ivan Polo", false,
 
                         "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/16.jpg", "Emelda Scandroot", "Mar 5",
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/men/67.jpg", "Marcos Sá", "Mar 4",
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20"),
-                createPerson("https://randomuser.me/api/portraits/women/67.jpg", "Jacqueline Asong", "Mar 2",
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "500", "20")
+                        "1K", "Belgrade")
 
         );
 
         grid.setItems(persons);
     }
 
-    private static Person createPerson(String image, String name, String date, String post, String likes,
-            String comments, String shares) {
+    private static Person createPerson(String image, String name, boolean travelStatus, String post, String likes, String location) {
         Person p = new Person();
         p.setImage(image);
         p.setName(name);
-        p.setDate(date);
+        p.setTravelStatus(travelStatus);
         p.setPost(post);
         p.setLikes(likes);
-        p.setComments(comments);
-        p.setShares(shares);
+        p.setLocation(location);
 
         return p;
     }

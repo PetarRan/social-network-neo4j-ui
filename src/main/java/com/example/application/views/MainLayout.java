@@ -3,24 +3,17 @@ package com.example.application.views;
 
 import com.example.application.views.checkin.CheckInView;
 import com.example.application.views.finddabblers.FindDabblersView;
-import com.example.application.views.makeathread.MakeaThreadView;
-import com.example.application.views.map.MapView;
-import com.example.application.views.personform.PersonFormView;
-import com.example.application.views.sharedwall.SharedWallView;
+import com.example.application.views.personform.MyProfile;
+import com.example.application.views.personform.MakeThreadView;
 import com.example.application.views.wall2.Wall2View;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.NpmPackage;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.ListItem;
-import com.vaadin.flow.component.html.Nav;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
@@ -101,8 +94,9 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawerContent() {
-        H2 appName = new H2("dabbl");
-        appName.addClassNames("flex", "items-center", "h-xl", "m-0", "px-m", "text-m");
+        Image appName = new Image("images/logo-dabbl.png", "dabbl");
+        appName.setWidth("150px");
+        appName.addClassNames("flex", "items-center", "m-0", "px-m", "text-m");
 
         com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
                 createNavigation(), createFooter());
@@ -129,19 +123,16 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Shared Wall", "la la-th-list", SharedWallView.class), //
 
-                new MenuItemInfo("Make a Thread", "la la-plus", MakeaThreadView.class), //
+                new MenuItemInfo("My Profile", "la la-user", MyProfile.class),
+
+                new MenuItemInfo("Shared Wall", "la la-list", Wall2View.class), //
 
                 new MenuItemInfo("Find Dabblers", "la la-user-friends", FindDabblersView.class), //
 
+                new MenuItemInfo("Make a Thread", "la la-plus", MakeThreadView.class), //
+
                 new MenuItemInfo("Check In", "la la-location-arrow", CheckInView.class), //
-
-                new MenuItemInfo("Person Form", "la la-user", PersonFormView.class), //
-
-                new MenuItemInfo("Map", "la la-map", MapView.class), //
-
-                new MenuItemInfo("Wall2", "la la-list", Wall2View.class), //
 
         };
     }
@@ -149,6 +140,8 @@ public class MainLayout extends AppLayout {
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
+
+        layout.add(new Button("Logout", VaadinIcon.EXIT.create()));
 
         return layout;
     }

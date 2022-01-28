@@ -10,10 +10,12 @@ public class SamplePerson extends AbstractEntity {
     private String firstName;
     private String lastName;
     private String email;
+    private String username;
     private String phone;
     private LocalDate dateOfBirth;
     private String occupation;
-    private boolean important;
+    private boolean isTravelling;
+    private String currentLocation;
 
     public String getFirstName() {
         return firstName;
@@ -51,11 +53,22 @@ public class SamplePerson extends AbstractEntity {
     public void setOccupation(String occupation) {
         this.occupation = occupation;
     }
-    public boolean isImportant() {
-        return important;
+    public boolean isTravelling() {
+        return isTravelling;
     }
-    public void setImportant(boolean important) {
-        this.important = important;
+    public void setTravelling(boolean travelling) {
+        isTravelling = travelling;
     }
-
+    public void setCurrentLocation(String currentLocation) {
+        this.currentLocation = currentLocation;
+    }
+    public String getCurrentLocation() {
+        return currentLocation;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

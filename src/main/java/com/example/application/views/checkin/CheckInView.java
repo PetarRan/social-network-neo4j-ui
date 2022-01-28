@@ -1,9 +1,13 @@
 package com.example.application.views.checkin;
 
 import com.example.application.views.MainLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -15,12 +19,19 @@ public class CheckInView extends VerticalLayout {
     public CheckInView() {
         setSpacing(false);
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
-        add(img);
+        H2 title = new H2("Currently Not Travelling");
+        add(title);
+        Button travelling = new Button(VaadinIcon.AIRPLANE.create());
+        travelling.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        travelling.addThemeVariants(ButtonVariant.LUMO_LARGE);
 
-        add(new H2("This place intentionally left empty"));
-        add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
+        travelling.addClickListener(buttonClickEvent -> {
+            title.setText("Currently Travelling!");
+            travelling.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+            travelling.removeThemeVariants(ButtonVariant.LUMO_ERROR);
+        });
+
+        add(travelling);
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);

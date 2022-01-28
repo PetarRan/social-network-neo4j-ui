@@ -4,6 +4,7 @@ import com.example.application.data.entity.SamplePerson;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -11,6 +12,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
@@ -21,11 +23,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import javassist.tools.rmi.Sample;
 
-@PageTitle("Person Form")
-@Route(value = "person-form", layout = MainLayout.class)
+@PageTitle("My Profile")
+@Route(value = "my-profile", layout = MainLayout.class)
 @Uses(Icon.class)
-public class PersonFormView extends Div {
+public class MyProfile extends Div {
 
     private TextField firstName = new TextField("First name");
     private TextField lastName = new TextField("Last name");
@@ -39,22 +42,32 @@ public class PersonFormView extends Div {
 
     private Binder<SamplePerson> binder = new Binder(SamplePerson.class);
 
-    public PersonFormView(SamplePersonService personService) {
+    public MyProfile(SamplePersonService personService) {
         addClassName("person-form-view");
 
         add(createTitle());
         add(createFormLayout());
         add(createButtonLayout());
+        add(createLocationsVisited());
 
         binder.bindInstanceFields(this);
         clearForm();
 
-        cancel.addClickListener(e -> clearForm());
+        cancel.addClickListener(e -> {
+            clearForm();
+            UI.getCurrent().navigate("wall2");
+        });
         save.addClickListener(e -> {
             personService.update(binder.getBean());
             Notification.show(binder.getBean().getClass().getSimpleName() + " details stored.");
             clearForm();
         });
+    }
+
+    private Component createLocationsVisited() {
+        Grid<SamplePerson> grid = new Grid<>(SamplePerson.class, false);
+        grid.setSizeFull();
+        return grid;
     }
 
     private void clearForm() {
