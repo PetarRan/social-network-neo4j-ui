@@ -36,7 +36,8 @@ import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
-
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
+import com.vaadin.flow.component.grid.Grid;
 @PageTitle("Find Dabblers")
 @Route(value = "users/:samplePersonID?/:action?(edit)", layout = MainLayout.class)
 @Uses(Icon.class)
@@ -72,8 +73,8 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
         // Configure Grid
         grid.addColumn(SamplePerson::getFirstName).setAutoWidth(true).setHeader("First Name");
         grid.addColumn(SamplePerson::getLastName).setAutoWidth(true).setHeader("Last Name");
-        grid.addColumn(SamplePerson::getUsername).setAutoWidth(true).setHeader("Username");
-        grid.addColumn(SamplePerson::isTravelling).setAutoWidth(true).setHeader("Is Travelling?");
+        grid.addColumn(SamplePerson::getEmail).setAutoWidth(true).setHeader("Email");
+
 
 
         grid.setDataProvider(new CrudServiceDataProvider <>(samplePersonService));//TODO izmeni - TEST SLUCAJ

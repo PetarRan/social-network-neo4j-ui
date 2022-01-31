@@ -33,6 +33,7 @@ public class MyProfile extends Div {
     private TextField firstName = new TextField("First name");
     private TextField lastName = new TextField("Last name");
     private EmailField email = new EmailField("Email address");
+    private TextField imageUrl = new TextField("Image URL");
     private DatePicker dateOfBirth = new DatePicker("Birthday");
     private PhoneNumberField phone = new PhoneNumberField("Phone number");
     private TextField occupation = new TextField("Occupation");
@@ -58,9 +59,15 @@ public class MyProfile extends Div {
             UI.getCurrent().navigate("wall2");
         });
         save.addClickListener(e -> {
-            personService.update(binder.getBean());
-            Notification.show(binder.getBean().getClass().getSimpleName() + " details stored.");
-            clearForm();
+
+            if(this.firstName.getValue() == "" || this.lastName.getValue() == "" || this.email.getValue() == "" || this.imageUrl.getValue() == ""){
+
+            }
+            else{
+                personService.update(binder.getBean());
+                Notification.show(binder.getBean().getClass().getSimpleName() + " details stored.");
+                clearForm();
+            }
         });
     }
 
@@ -81,7 +88,12 @@ public class MyProfile extends Div {
     private Component createFormLayout() {
         FormLayout formLayout = new FormLayout();
         email.setErrorMessage("Please enter a valid email address");
-        formLayout.add(firstName, lastName, dateOfBirth, phone, email, occupation);
+        firstName.setRequired(true);
+//        firstName.setRequiredError("First name must be filled in!");
+        lastName.setRequired(true);
+        imageUrl.setRequired(true);
+        email.setRequiredIndicatorVisible(true);
+        formLayout.add(firstName, lastName, dateOfBirth, phone, email, imageUrl, occupation);
         return formLayout;
     }
 
