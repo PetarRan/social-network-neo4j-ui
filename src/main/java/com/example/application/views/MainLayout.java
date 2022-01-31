@@ -3,21 +3,32 @@ package com.example.application.views;
 
 import com.example.application.views.checkin.CheckInView;
 import com.example.application.views.finddabblers.FindDabblersView;
+import com.example.application.views.following.FollowingView;
 import com.example.application.views.personform.MyProfile;
 import com.example.application.views.personform.MakeThreadView;
 import com.example.application.views.wall2.Wall2View;
+import com.example.application.views.likedPosts.LikedPostsView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
+
+
+
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -30,6 +41,10 @@ public class MainLayout extends AppLayout {
     /**
      * A simple navigation item component, based on ListItem element.
      */
+
+    Dialog popUpDialog;
+    Label userMail = new Label("");
+
     public static class MenuItemInfo extends ListItem {
 
         private final Class<? extends Component> view;
@@ -76,6 +91,8 @@ public class MainLayout extends AppLayout {
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
+
+        popUp();
     }
 
     private Component createHeaderContent() {
@@ -128,6 +145,10 @@ public class MainLayout extends AppLayout {
 
                 new MenuItemInfo("Shared Wall", "la la-list", Wall2View.class), //
 
+                new MenuItemInfo("Liked Posts", "la la-heart-o", LikedPostsView.class), //
+
+                new MenuItemInfo("Following", "la la-tag", FollowingView.class), //
+
                 new MenuItemInfo("Find Dabblers", "la la-user-friends", FindDabblersView.class), //
 
                 new MenuItemInfo("Make a Thread", "la la-plus", MakeThreadView.class), //
@@ -140,8 +161,14 @@ public class MainLayout extends AppLayout {
     private Footer createFooter() {
         Footer layout = new Footer();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
+        this.userMail.addClassName("text-secondary");
 
-        layout.add(new Button("Logout", VaadinIcon.EXIT.create()));
+        layout.add(new Div(this.userMail), new Div(new Button("Logout", VaadinIcon.EXIT.create(), click -> {
+            UI.getCurrent().navigate("Login");
+            UI.getCurrent().getPage().reload();
+            //TODO obrisi username pored logouta
+        })));
+
 
         return layout;
     }
@@ -155,5 +182,77 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
+    }
+
+    private void popUp() {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("450px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField firstName = new TextField();
+        firstName.setRequired(true);
+        firstName.setLabel("First Name: ");
+
+        TextField lastName = new TextField();
+        lastName.setRequired(true);
+        lastName.setLabel("Last Name: ");
+
+        EmailField emailField= new EmailField();
+        emailField.setRequiredIndicatorVisible(true);
+        emailField.setLabel("EMail: ");
+
+        TextField imageUrl = new TextField();
+        imageUrl.setRequired(true);
+        imageUrl.setLabel("ImageUrL: ");
+
+        Checkbox checkbox = new Checkbox("I already have an account.");
+        checkbox.addClickListener(click -> {
+           if(checkbox.getValue()){
+               imageUrl.setEnabled(false);
+               firstName.setEnabled(false);
+               lastName.setEnabled(false);
+           }
+           else{
+               imageUrl.setEnabled(true);
+               firstName.setEnabled(true);
+               lastName.setEnabled(true);
+           }
+        });
+
+        formLayout.add(emailField, firstName, lastName, imageUrl , checkbox);
+        formLayout.setColspan(imageUrl, 2);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(checkbox.getValue()){
+                if(!emailField.isEmpty() && !emailField.isInvalid()){
+                    popUpDialog.close();
+                    UI.getCurrent().navigate("my-profile");
+                    //TODO Klik na dugme kada je vec u Bazi
+
+                    this.userMail.setText(emailField.getValue());
+                }
+            }
+            else{
+                if(!emailField.isEmpty() && !firstName.isEmpty() &&
+                !lastName.isEmpty() && !imageUrl.isEmpty() && !emailField.isInvalid()){
+                    popUpDialog.close();
+                    UI.getCurrent().navigate("my-profile");
+                    //TODO Klik na dugme kada NIJE u bazi
+                    this.userMail.setText(emailField.getValue());
+
+                }
+
+            }
+
+        });
+
+        formLayout.add(login);
+        formLayout.setColspan(login, 2);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+
     }
 }

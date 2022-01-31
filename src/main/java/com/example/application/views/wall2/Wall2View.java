@@ -21,7 +21,6 @@ import java.util.List;
 
 @PageTitle("Shared Wall")
 @Route(value = "wall2", layout = MainLayout.class)
-@RouteAlias(value = "", layout = MainLayout.class)
 public class Wall2View extends Div implements AfterNavigationObserver {
 
     Grid<Person> grid = new Grid<>();
