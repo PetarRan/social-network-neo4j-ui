@@ -36,7 +36,6 @@ import java.util.Locale;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.Grid;
 @PageTitle("Find Dabblers")
 @Route(value = "users/:samplePersonID?/:action?(edit)", layout = MainLayout.class)
