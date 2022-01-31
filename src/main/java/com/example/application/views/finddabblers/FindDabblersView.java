@@ -77,8 +77,8 @@ public class FindDabblersView extends Div implements BeforeEnterObserver {
 
 
 
-        grid.setDataProvider(new CrudServiceDataProvider <>(samplePersonService));
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        grid.setDataProvider(new CrudServiceDataProvider <>(samplePersonService));//TODO izmeni - TEST SLUCAJ
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setHeightFull();
 
         filterText.setPrefixComponent(VaadinIcon.SEARCH.create());
