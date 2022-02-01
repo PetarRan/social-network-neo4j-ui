@@ -1,6 +1,7 @@
 package com.petarran.application.views.personform;
 
 
+import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -8,34 +9,42 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
 @PageTitle("My Profile")
 @Route(value = "my-profile", layout = MainLayout.class)
+@RouteAlias(value = "", layout = MainLayout.class)
 @Uses(Icon.class)
 public class MyProfile extends Div {
 
     private TextField firstName = new TextField("First name");
+    private NumberField userId = new NumberField("User Id Number");
     private TextField lastName = new TextField("Last name");
     private EmailField email = new EmailField("Email address");
     private TextField imageUrl = new TextField("Image URL");
     private PhoneNumberField phone = new PhoneNumberField("Phone number");
 
-    private Button cancel = new Button("Cancel");
+    private Button cancel = new Button("Delete User Profile");
     private Button save = new Button("Save");
 
+    private final UserFeignClient userFeignClient;
 
-    public MyProfile() {
+
+    public MyProfile(UserFeignClient userFeignClient) {
+        this.userFeignClient = userFeignClient;
         addClassName("person-form-view");
 
         add(createTitle());
@@ -43,7 +52,9 @@ public class MyProfile extends Div {
         add(createButtonLayout());
 
         cancel.addClickListener(e -> {
-            UI.getCurrent().navigate("wall2");
+            popUp("Are you sure you want to delete your profile?");
+            userFeignClient.delete(userId.getValue().longValue());
+            UI.getCurrent().getPage().reload();
         });
         save.addClickListener(e -> {
 
@@ -55,6 +66,27 @@ public class MyProfile extends Div {
         });
     }
 
+    private void popUp(String s) {
+        Dialog dialog = new Dialog();
+        FormLayout formLayout = new FormLayout();
+        Button yes = new Button("Yes", VaadinIcon.CHECK.create(), click -> {
+
+        });
+        Button no = new Button("No", click -> {
+            dialog.close();
+        });
+        yes.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        no.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        H3 header = new H3(s);
+        formLayout.add(header, yes, no);
+        formLayout.setColspan(header, 2);
+
+        dialog.setWidth("500px");
+        dialog.setHeight("250px");
+        dialog.add(formLayout);
+        dialog.open();
+    }
+
 
     private Component createTitle() {
         return new H3("Personal information");
@@ -63,12 +95,19 @@ public class MyProfile extends Div {
     private Component createFormLayout() {
         FormLayout formLayout = new FormLayout();
         email.setErrorMessage("Please enter a valid email address");
+        email.setReadOnly(true);
         firstName.setRequired(true);
+        firstName.setReadOnly(true);
 //        firstName.setRequiredError("First name must be filled in!");
         lastName.setRequired(true);
+        lastName.setReadOnly(true);
         imageUrl.setRequired(true);
+        userId.setReadOnly(true);
         email.setRequiredIndicatorVisible(true);
-        formLayout.add(firstName, lastName, phone, email, imageUrl);
+
+        userFeignClient.find
+
+        formLayout.add(firstName, lastName, phone, email, userId, imageUrl);
         return formLayout;
     }
 

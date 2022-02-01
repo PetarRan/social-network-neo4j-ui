@@ -11,7 +11,10 @@ import java.util.Collection;
 public interface UserFeignClient extends CommonFeignClient<User> {
 
     @RequestLine("GET getAll")
-    Collection<User> findAllFirma();
+    Collection<User> findAllUsers();
+
+    @RequestLine("GET getByMail/{mail}")
+    Collection<User> findUserByMail();
 
     @RequestLine("POST addUser")
     void addUser(@Valid @RequestBody(required = true) User user);

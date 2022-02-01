@@ -1,6 +1,10 @@
 package com.petarran.application.views.wall2;
 
 import com.petarran.application.components.leafletmap.LeafletMap;
+import com.petarran.application.data.Post;
+import com.petarran.application.data.User;
+import com.petarran.application.feign_client.PostFeignClient;
+import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -22,25 +26,33 @@ import java.util.List;
 @Route(value = "wall2", layout = MainLayout.class)
 public class Wall2View extends Div implements AfterNavigationObserver {
 
-    Grid<Person> grid = new Grid<>();
+    Grid<Post> grid = new Grid<>();
+    private final UserFeignClient userFeignClient;
+    private final PostFeignClient postFeignClient;
 
-    public Wall2View() {
+    public Wall2View( UserFeignClient userFeignClient, PostFeignClient postFeignClient) {
+        this.userFeignClient = userFeignClient;
+        this.postFeignClient = postFeignClient;
+
         addClassName("wall2-view");
         setSizeFull();
         grid.setHeight("100%");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        grid.addComponentColumn(person -> createCard(person));
+        grid.addComponentColumn(post -> createCard(post));
         add(grid);
     }
 
-    private HorizontalLayout createCard(Person person) {
+    private HorizontalLayout createCard(Post wallPost) {
+        User personWhoPosted = userFeignClient.findOne(wallPost.getUserid()).getContent();
+
         HorizontalLayout card = new HorizontalLayout();
         card.addClassName("card");
         card.setSpacing(false);
         card.getThemeList().add("spacing-s");
 
         Image image = new Image();
-        image.setSrc(person.getImage());
+        image.setSrc(personWhoPosted.getImageUrl());
+        image.setAlt("user image");
         VerticalLayout description = new VerticalLayout();
         description.addClassName("description");
         description.setSpacing(false);
@@ -51,13 +63,18 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         header.setSpacing(false);
         header.getThemeList().add("spacing-s");
 
-        Span name = new Span(person.getName());
+        Span name = new Span(personWhoPosted.getEmail());
         name.addClassName("name");
-        Span travelStatus = new Span(person.isTravelStatus());
+        Span travelStatus = new Span();
+        if(personWhoPosted.getTravelling()){
+            travelStatus.setText("Travelling now.");
+        } else {
+            travelStatus.setText("Not Travelling.");
+        }
         travelStatus.addClassName("date");
         header.add(name, travelStatus);
 
-        Span post = new Span(person.getPost());
+        Span post = new Span(wallPost.getDescription());
         post.addClassName("post");
 
         HorizontalLayout actions = new HorizontalLayout();
@@ -67,12 +84,12 @@ public class Wall2View extends Div implements AfterNavigationObserver {
 
         Button likeIcon = new Button(VaadinIcon.HEART.create());
         likeIcon.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        Span likes = new Span(person.getLikes());
+        Span likes = new Span(wallPost.getLikes().toString());
         likes.addClassName("likes");
 
-        Button locationCheck = new Button(person.getLocation() ,VaadinIcon.LOCATION_ARROW_CIRCLE.create());
+        Button locationCheck = new Button(wallPost.getLocation() ,VaadinIcon.LOCATION_ARROW_CIRCLE.create());
         locationCheck.addClickListener(click -> {
-            locationPopUp(person.getLocation());
+            locationPopUp(wallPost.getLatitude(), wallPost.getLongitude());
         });
 
         actions.add(likeIcon, likes, locationCheck);
@@ -82,11 +99,11 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         return card;
     }
 
-    private void locationPopUp(String location) {
+    private void locationPopUp(Double latitude, Double longitude) {
         Dialog dialog = new Dialog();
         VerticalLayout verticalLayout = new VerticalLayout();
         LeafletMap map = new LeafletMap();
-        map.setView(42.546245, 	1.601554, 10);
+        map.setView(latitude, 	longitude, 11);
         map.setWidth("700px");
         map.setHeight("700px");
 
@@ -102,58 +119,8 @@ public class Wall2View extends Div implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-
-        // Set some data when this view is displayed.
-        List<Person> persons = Arrays.asList( //
-                createPerson("https://randomuser.me/api/portraits/men/42.jpg", "John Smith", true,
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/women/42.jpg", "Abagail Libbie", true,
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/men/24.jpg", "Alberto Raya", false,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/women/24.jpg", "Emmy Elsner", true,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/men/76.jpg", "Alf Huncoot", false,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/women/76.jpg", "Lidmila Vilensky", false,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/men/94.jpg", "Jarrett Cawsey", false,
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/women/94.jpg", "Tania Perfilyeva", true,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade"),
-                createPerson("https://randomuser.me/api/portraits/men/16.jpg", "Ivan Polo", false,
-
-                        "In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document without relying on meaningful content (also called greeking).",
-                        "1K", "Belgrade")
-
-        );
-
-        grid.setItems(persons);
+        grid.setItems(postFeignClient.findAllPosts());
     }
 
-    private static Person createPerson(String image, String name, boolean travelStatus, String post, String likes, String location) {
-        Person p = new Person();
-        p.setImage(image);
-        p.setName(name);
-        p.setTravelStatus(travelStatus);
-        p.setPost(post);
-        p.setLikes(likes);
-        p.setLocation(location);
-
-        return p;
-    }
 
 }

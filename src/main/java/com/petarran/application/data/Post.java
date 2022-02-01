@@ -15,25 +15,48 @@ public class Post {
     private String description;
     @Property(name = "likes")
     private Long likes;
+    @Property(name = "userid")
+    private Long userid;
     @Property(name = "latitude")
     private Double latitude;
     @Property(name = "longitude")
     private Double longitude;
+    @Property(name = "location")
+    private String location;
 
-    public Post(String description, Long likes, Double latitude, Double longitude) {
+    public Post(String description, Long likes, Double latitude, Double longitude,
+                Long userid, String location) {
         this.id = null;
         this.description = description;
         this.likes = likes;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.location = location;
+        this.userid = userid;
     }
 
     public Post withId(Long id) {
         if (this.id.equals(id)) {
             return this;
         } else {
-            return new Post(this.description, this.likes, this.latitude, this.longitude);
+            return new Post(this.description, this.likes, this.latitude, this.longitude, this.userid, this.location);
         }
+    }
+
+    public Long getUserid() {
+        return userid;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setUserid(Long userid) {
+        this.userid = userid;
     }
 
     public Long getId() {

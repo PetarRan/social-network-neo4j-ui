@@ -11,7 +11,7 @@ import java.util.Collection;
 public interface PostFeignClient extends CommonFeignClient<Post> {
 
     @RequestLine("GET getAll")
-    Collection<Post> findAllFirma();
+    Collection<Post> findAllPosts();
 
     @RequestLine("GET getAll")
     Collection<Post> findFollowersPosts();
@@ -20,6 +20,6 @@ public interface PostFeignClient extends CommonFeignClient<Post> {
     Collection<Post> findLikedPosts();
 
     @RequestLine("POST addPost")
-    void addUser(@Valid @RequestBody(required = true) User user);
+    void addPost(@Valid @RequestBody(required = true) Post post);
 
 }

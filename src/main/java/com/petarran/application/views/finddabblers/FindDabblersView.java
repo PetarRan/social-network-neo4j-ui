@@ -2,12 +2,11 @@ package com.petarran.application.views.finddabblers;
 
 
 import com.petarran.application.data.User;
+import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -15,12 +14,12 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @PageTitle("Find Dabblers")
@@ -32,16 +31,18 @@ public class FindDabblersView extends Div {
 
     private static Grid<User> grid;
     private static Div hint;
+    private final UserFeignClient userFeignClient;
 
-    public FindDabblersView() {
-            this.setupInvitationForm();
+    public FindDabblersView(UserFeignClient userFeignClient) {
+        this.userFeignClient = userFeignClient;
+        this.setupInvitationForm();
             this.setupGrid();
             this.refreshGrid();
     }
     private void setupInvitationForm() {
-            List<User> people = null;
+            Collection<User> users = userFeignClient.findAllUsers();
             ComboBox<User> comboBox = new ComboBox<User>();
-            comboBox.setItems(people);
+            comboBox.setItems(users);
             comboBox.setItemLabelGenerator(User::getEmail);
 
             Button button = new Button("Send invite");

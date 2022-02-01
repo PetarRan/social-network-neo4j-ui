@@ -233,7 +233,7 @@ public class MainLayout extends AppLayout {
                 if(!emailField.isEmpty() && !emailField.isInvalid()){
                     popUpDialog.close();
                     UI.getCurrent().navigate("my-profile");
-
+                    UI.getCurrent().getSession().setAttribute("email", userMail.getText());
                     this.userMail.setText(emailField.getValue());
                 }
             }
