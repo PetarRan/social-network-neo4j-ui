@@ -1,20 +1,21 @@
 package com.petarran.application.data;
 
-import org.neo4j.ogm.annotation.*;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
+import org.springframework.data.neo4j.core.schema.TargetNode;
 
-@RelationshipEntity(type = "Follows")
+@RelationshipProperties
 public class Follows {
     @Id
     @GeneratedValue
     private Long id;
-    @StartNode
-    private User userFollowing;
-    @EndNode
+
+    @TargetNode
     private User userFollowed;
 
-    public Follows(User userFollowing, User userFollowed) {
+    public Follows(User userFollowed) {
         this.id = null;
-        this.userFollowing = userFollowing;
         this.userFollowed = userFollowed;
     }
 
@@ -22,7 +23,7 @@ public class Follows {
         if (this.id.equals(id)) {
             return this;
         } else {
-            return new Follows(this.userFollowing, this.userFollowed);
+            return new Follows(this.userFollowed);
         }
     }
 
@@ -32,14 +33,6 @@ public class Follows {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUserFollowing() {
-        return userFollowing;
-    }
-
-    public void setUserFollowing(User userFollowing) {
-        this.userFollowing = userFollowing;
     }
 
     public User getUserFollowed() {

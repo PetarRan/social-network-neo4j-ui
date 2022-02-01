@@ -1,10 +1,10 @@
 package com.petarran.application.data;
 
-import org.neo4j.ogm.annotation.*;
+import org.springframework.data.neo4j.core.schema.*;
 
 import java.util.List;
 
-@NodeEntity(label = "User")
+@Node("User")
 public class User {
 
     @Id
@@ -49,13 +49,13 @@ public class User {
         }
     }
 
-    @Relationship(type = "Follows")
+    @Relationship(type = "Follows", direction = Relationship.Direction.OUTGOING)
     private List<User> following;
 
-    @Relationship(type = "Liked")
+    @Relationship(type = "Liked", direction = Relationship.Direction.OUTGOING)
     private List<Post> likedPosts;
 
-    @Relationship(type = "Posted")
+    @Relationship(type = "Posted", direction = Relationship.Direction.OUTGOING)
     private List<Post> myPosts;
 
     public Long getId() {

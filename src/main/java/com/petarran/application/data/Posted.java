@@ -1,21 +1,31 @@
 package com.petarran.application.data;
 
-import org.neo4j.ogm.annotation.*;
 
-@RelationshipEntity(type = "Posted")
+import org.hibernate.annotations.Target;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
+import org.springframework.data.neo4j.core.schema.TargetNode;
+
+@RelationshipProperties
 public class Posted {
     @Id
     @GeneratedValue
     private Long id;
-    @StartNode
-    private User user;
-    @EndNode
+    @TargetNode
     private Post post;
 
-    public Posted(User user, Post post) {
+    public Posted(Post post) {
         this.id = null;
-        this.user = user;
         this.post = post;
+    }
+
+    public Posted withId(Long id) {
+        if (this.id.equals(id)) {
+            return this;
+        } else {
+            return new Posted(this.post);
+        }
     }
 
     public Long getId() {
@@ -24,14 +34,6 @@ public class Posted {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Post getPost() {

@@ -1,6 +1,8 @@
 package com.petarran.application.views;
 
 
+import com.petarran.application.data.User;
+import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.checkin.CheckInView;
 import com.petarran.application.views.finddabblers.FindDabblersView;
 import com.petarran.application.views.following.FollowingView;
@@ -44,6 +46,7 @@ public class MainLayout extends AppLayout {
 
     Dialog popUpDialog;
     Label userMail = new Label("");
+    UserFeignClient userFeignClient;
 
     public static class MenuItemInfo extends ListItem {
 
@@ -87,7 +90,9 @@ public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
-    public MainLayout() {
+    public MainLayout(UserFeignClient userFeignClient) {
+        this.userFeignClient = userFeignClient;
+
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
@@ -228,7 +233,6 @@ public class MainLayout extends AppLayout {
                 if(!emailField.isEmpty() && !emailField.isInvalid()){
                     popUpDialog.close();
                     UI.getCurrent().navigate("my-profile");
-                    //TODO Klik na dugme kada je vec u Bazi
 
                     this.userMail.setText(emailField.getValue());
                 }
@@ -238,7 +242,10 @@ public class MainLayout extends AppLayout {
                 !lastName.isEmpty() && !imageUrl.isEmpty() && !emailField.isInvalid()){
                     popUpDialog.close();
                     UI.getCurrent().navigate("my-profile");
-                    //TODO Klik na dugme kada NIJE u bazi
+                    User user = new User(emailField.getValue(), imageUrl.getValue(), firstName.getValue(),
+                            lastName.getValue(), "", false,
+                            null, null, null);
+                    userFeignClient.addUser(user);
                     this.userMail.setText(emailField.getValue());
 
                 }
