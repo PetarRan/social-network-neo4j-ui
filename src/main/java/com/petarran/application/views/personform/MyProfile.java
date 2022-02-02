@@ -92,15 +92,16 @@ public class MyProfile extends Div {
         Dialog dialog = new Dialog();
         FormLayout formLayout = new FormLayout();
         Button yes = new Button("Yes", VaadinIcon.CHECK.create(), click -> {
-
+            User userTemp = userFeignClient.findUserByMail(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                    .toString());
+            userFeignClient.removeUser(userTemp);
+            UI.getCurrent().navigate("Login");
+            UI.getCurrent().getPage().reload();
         });
         Button no = new Button("No", click -> {
             dialog.close();
         });
         yes.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        yes.addClickListener(click -> {
-            //TODO delete profile
-        });
         no.addThemeVariants(ButtonVariant.LUMO_ERROR);
         H3 header = new H3(s);
         formLayout.add(header, yes, no);
@@ -195,6 +196,19 @@ public class MyProfile extends Div {
         header.add(name, unfollow);
         header.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
+        if(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                .toString().equals("admin@admin.com")){
+            Button banButton = new Button("Ban This User", VaadinIcon.GAVEL.create(), click->{
+               User userTemp2 = userFeignClient.findUserByMail(name.getText());
+               userFeignClient.removeUser(userTemp2);
+               popUpNotification("User " + name.getText() + " recieved the ban hammer.",
+                       NotificationVariant.LUMO_PRIMARY);
+               UI.getCurrent().navigate("Login");
+               UI.getCurrent().navigate("my-profile");
+            });
+            header.add(banButton);
+        }
+
         Span post = new Span("You are following this user.");
         post.addClassName("post");
 
@@ -207,9 +221,7 @@ public class MyProfile extends Div {
     private void popUpDialog(String s, User userMy, String email) {
         Dialog dialog = new Dialog();
         FormLayout formLayout = new FormLayout();
-        Button yes = new Button("Yes", VaadinIcon.CHECK.create(), click -> {
-
-        });
+        Button yes = new Button("Yes", VaadinIcon.CHECK.create());
         Button no = new Button("No", click -> {
             dialog.close();
         });

@@ -15,9 +15,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -88,6 +91,17 @@ public class Wall2View extends Div {
         actions.getThemeList().add("spacing-s");
 
         Button likeIcon = new Button(VaadinIcon.HEART.create());
+        likeIcon.addClickListener(buttonClickEvent -> {
+            wallPost.setLikes(wallPost.getLikes()+1);
+            Post postTemp = new Post(wallPost.getDescription(), wallPost.getLikes(), wallPost.getLatitude(),
+                    wallPost.getLongitude(), wallPost.getUserid(), wallPost.getLocation());
+
+           postFeignClient.likePost(postTemp, VaadinServletService.getCurrentServletRequest()
+                   .getSession().getAttribute("email")
+                   .toString());
+           popUpNotification("Post Liked!", NotificationVariant.LUMO_SUCCESS);
+
+        });
         likeIcon.addThemeVariants(ButtonVariant.LUMO_ERROR);
         Span likes = new Span(wallPost.getLikes().toString());
         likes.addClassName("likes");
@@ -120,6 +134,15 @@ public class Wall2View extends Div {
         verticalLayout.add(map);
         dialog.add(verticalLayout);
         dialog.open();
+    }
+
+    private void popUpNotification(String s, NotificationVariant lumo) {
+        Notification notification = new Notification();
+        notification.setDuration(3500);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(lumo);
+        notification.setText(s);
+        notification.open();
     }
 
 

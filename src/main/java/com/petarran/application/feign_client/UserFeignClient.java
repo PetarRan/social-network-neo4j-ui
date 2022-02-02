@@ -20,6 +20,9 @@ public interface UserFeignClient extends CommonFeignClient<User> {
     @RequestLine("POST addUser")
     void addUser(@Valid @RequestBody(required = true) User user);
 
+    @RequestLine("DELETE deleteProfile")
+    void removeUser(@Valid @RequestBody(required = true) User user);
+
     @RequestLine("PUT updateUser")
     void updateUser(@Valid @RequestBody(required = true) User user);
 

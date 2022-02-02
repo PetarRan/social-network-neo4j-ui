@@ -18,13 +18,14 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.Arrays;
 import java.util.List;
 
 @PageTitle("Liked Posts")
 @Route(value = "likedPosts", layout = MainLayout.class)
-public class LikedPostsView extends Div implements AfterNavigationObserver {
+public class LikedPostsView extends Div {
 
     Grid<Post> grid = new Grid<>();
     private final UserFeignClient userFeignClient;
@@ -36,10 +37,11 @@ public class LikedPostsView extends Div implements AfterNavigationObserver {
 
         addClassName("wall2-view");
         setSizeFull();
-        grid.setHeight("100%");
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        grid.addComponentColumn(post -> createCard(post));
-        add(grid);
+
+        postFeignClient.findLikedPosts(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                .toString()).forEach(post -> {
+            add(createCard(post));
+        });
     }
 
     private HorizontalLayout createCard(Post wallPost) {
@@ -75,6 +77,7 @@ public class LikedPostsView extends Div implements AfterNavigationObserver {
         } else {
             travelStatus.setText("Travelling now.");
         }
+
         travelStatus.addClassName("date");
         header.add(name, travelStatus);
 
@@ -107,23 +110,18 @@ public class LikedPostsView extends Div implements AfterNavigationObserver {
         Dialog dialog = new Dialog();
         VerticalLayout verticalLayout = new VerticalLayout();
         LeafletMap map = new LeafletMap();
-        map.setView(latitude, 	longitude, 11);
-        map.setWidth("700px");
-        map.setHeight("700px");
+        map.setView(latitude, 	longitude, 6);
+        map.setHeight("750px");
+        map.setWidth("750px");
 
-        dialog.setWidth("800px");
-        dialog.setHeight("800px");
+        dialog.setWidth("900px");
+        dialog.setHeight("900px");
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
 
         verticalLayout.add(map);
         dialog.add(verticalLayout);
         dialog.open();
-    }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        grid.setItems(postFeignClient.findAllPosts());
     }
 
 }

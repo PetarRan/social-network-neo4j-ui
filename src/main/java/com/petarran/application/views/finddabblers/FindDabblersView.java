@@ -11,6 +11,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -119,7 +120,10 @@ public class FindDabblersView extends Div {
 
         hint = new Div();
         hint.add(new Image("https://i.imgur.com/6HG0BlT.png", "Travel together."));
-        hint.setSizeFull();
+        hint.add(new H3("Travel Together."));
+        hint.getStyle().set("padding", "var(--lumo-size-l)")
+                .set("text-align", "center").set("font-style", "italic")
+                .set("color", "var(--lumo-contrast-70pct)");
 
         add(hint, grid);
     }
