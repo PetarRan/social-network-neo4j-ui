@@ -14,9 +14,9 @@ public class Post {
     @Property(name = "description")
     private String description;
     @Property(name = "likes")
-    private Long likes;
+    private Integer likes;
     @Property(name = "userid")
-    private Long userid;
+    private String userid;
     @Property(name = "latitude")
     private Double latitude;
     @Property(name = "longitude")
@@ -24,8 +24,8 @@ public class Post {
     @Property(name = "location")
     private String location;
 
-    public Post(String description, Long likes, Double latitude, Double longitude,
-                Long userid, String location) {
+    public Post(String description, Integer likes, Double latitude, Double longitude,
+                String userid, String location) {
         this.id = null;
         this.description = description;
         this.likes = likes;
@@ -43,7 +43,7 @@ public class Post {
         }
     }
 
-    public Long getUserid() {
+    public String getUserid() {
         return userid;
     }
 
@@ -55,7 +55,7 @@ public class Post {
         this.location = location;
     }
 
-    public void setUserid(Long userid) {
+    public void setUserid(String userid) {
         this.userid = userid;
     }
 
@@ -75,11 +75,11 @@ public class Post {
         this.description = description;
     }
 
-    public Long getLikes() {
+    public Integer getLikes() {
         return likes;
     }
 
-    public void setLikes(Long likes) {
+    public void setLikes(Integer likes) {
         this.likes = likes;
     }
 

@@ -1,4 +1,4 @@
-package com.petarran.application.views.following;
+package com.petarran.application.views.walls;
 
 import com.petarran.application.components.leafletmap.LeafletMap;
 import com.petarran.application.data.Post;
@@ -17,23 +17,20 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AfterNavigationEvent;
-import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 
 import java.util.Arrays;
 import java.util.List;
 
-@PageTitle("Following")
-@Route(value = "following", layout = MainLayout.class)
-public class FollowingView extends Div implements AfterNavigationObserver {
+@PageTitle("Liked Posts")
+@Route(value = "likedPosts", layout = MainLayout.class)
+public class LikedPostsView extends Div implements AfterNavigationObserver {
 
     Grid<Post> grid = new Grid<>();
     private final UserFeignClient userFeignClient;
     private final PostFeignClient postFeignClient;
 
-    public FollowingView( UserFeignClient userFeignClient, PostFeignClient postFeignClient) {
+    public LikedPostsView( UserFeignClient userFeignClient, PostFeignClient postFeignClient) {
         this.userFeignClient = userFeignClient;
         this.postFeignClient = postFeignClient;
 
@@ -46,7 +43,7 @@ public class FollowingView extends Div implements AfterNavigationObserver {
     }
 
     private HorizontalLayout createCard(Post wallPost) {
-        User personWhoPosted = userFeignClient.findOne(wallPost.getUserid()).getContent();
+        User personWhoPosted = userFeignClient.findUserByMail(wallPost.getUserid());
 
         HorizontalLayout card = new HorizontalLayout();
         card.addClassName("card");
@@ -69,10 +66,14 @@ public class FollowingView extends Div implements AfterNavigationObserver {
         Span name = new Span(personWhoPosted.getEmail());
         name.addClassName("name");
         Span travelStatus = new Span();
-        if(personWhoPosted.getTravelling()){
-            travelStatus.setText("Travelling now.");
+        if(personWhoPosted.getTravelling()!=null){
+            if(personWhoPosted.getTravelling()){
+                travelStatus.setText("Travelling now.");
+            } else {
+                travelStatus.setText("Not Travelling.");
+            }
         } else {
-            travelStatus.setText("Not Travelling.");
+            travelStatus.setText("Travelling now.");
         }
         travelStatus.addClassName("date");
         header.add(name, travelStatus);

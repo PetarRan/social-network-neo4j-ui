@@ -4,6 +4,7 @@ import com.petarran.application.data.User;
 import feign.Param;
 import feign.RequestLine;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -14,12 +15,15 @@ public interface UserFeignClient extends CommonFeignClient<User> {
     Collection<User> findAllUsers();
 
     @RequestLine("GET getByMail/{mail}")
-    Collection<User> findUserByMail();
+    User findUserByMail(@Param("mail")String mail);
 
     @RequestLine("POST addUser")
     void addUser(@Valid @RequestBody(required = true) User user);
 
     @RequestLine("PUT updateUser")
     void updateUser(@Valid @RequestBody(required = true) User user);
+
+    @RequestLine("GET allMyFollowers/{mail}")
+    Collection<User> findAllMyFollowers(@Param("mail")String mail);
 
 }

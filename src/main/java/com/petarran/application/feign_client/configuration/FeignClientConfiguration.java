@@ -1,5 +1,6 @@
 package com.petarran.application.feign_client.configuration;
 
+import com.petarran.application.feign_client.FollowsFeignClient;
 import com.petarran.application.feign_client.PostFeignClient;
 import com.petarran.application.feign_client.UserFeignClient;
 import feign.Client;
@@ -34,6 +35,9 @@ public class FeignClientConfiguration implements ApplicationContextAware {
 
     @Bean
     public UserFeignClient userFeignClient(){ return createClient(UserFeignClient.class, "user/"); }
+
+    @Bean
+    public FollowsFeignClient followsFeignClient(){ return createClient(FollowsFeignClient.class, "follows/"); }
 
 
     @Override

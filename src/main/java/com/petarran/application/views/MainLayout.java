@@ -5,11 +5,11 @@ import com.petarran.application.data.User;
 import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.checkin.CheckInView;
 import com.petarran.application.views.finddabblers.FindDabblersView;
-import com.petarran.application.views.following.FollowingView;
+import com.petarran.application.views.walls.FollowingView;
 import com.petarran.application.views.personform.MyProfile;
 import com.petarran.application.views.personform.MakeThreadView;
-import com.petarran.application.views.wall2.Wall2View;
-import com.petarran.application.views.likedPosts.LikedPostsView;
+import com.petarran.application.views.walls.Wall2View;
+import com.petarran.application.views.walls.LikedPostsView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -22,11 +22,14 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
+import com.vaadin.flow.server.VaadinServletService;
 import com.vaadin.flow.theme.Theme;
 
 
@@ -43,7 +46,6 @@ public class MainLayout extends AppLayout {
     /**
      * A simple navigation item component, based on ListItem element.
      */
-
     Dialog popUpDialog;
     Label userMail = new Label("");
     UserFeignClient userFeignClient;
@@ -163,8 +165,8 @@ public class MainLayout extends AppLayout {
         };
     }
 
-    private Footer createFooter() {
-        Footer layout = new Footer();
+    private FormLayout createFooter() {
+        FormLayout layout = new FormLayout();
         layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
         this.userMail.addClassName("text-secondary");
 
@@ -231,23 +233,39 @@ public class MainLayout extends AppLayout {
         login.addClickListener(loginClick -> {
             if(checkbox.getValue()){
                 if(!emailField.isEmpty() && !emailField.isInvalid()){
-                    popUpDialog.close();
-                    UI.getCurrent().navigate("my-profile");
-                    UI.getCurrent().getSession().setAttribute("email", userMail.getText());
-                    this.userMail.setText(emailField.getValue());
+                    if(userFeignClient.findUserByMail(emailField.getValue())
+                    == null){
+                        popUpNotification("User not found. Please register.", NotificationVariant.LUMO_ERROR);
+                    }
+                    else{
+                        popUpDialog.close();
+                        popUpNotification("Welcome " + emailField.getValue(), NotificationVariant.LUMO_SUCCESS);
+                        this.userMail.setText(emailField.getValue());
+                        VaadinServletService.getCurrentServletRequest().getSession()
+                                .setAttribute("email", emailField.getValue());
+                        UI.getCurrent().navigate("my-profile");
+                    }
+                }
+                else{
+                    popUpNotification("Fill all the required fields.", NotificationVariant.LUMO_ERROR);
                 }
             }
             else{
                 if(!emailField.isEmpty() && !firstName.isEmpty() &&
                 !lastName.isEmpty() && !imageUrl.isEmpty() && !emailField.isInvalid()){
                     popUpDialog.close();
-                    UI.getCurrent().navigate("my-profile");
                     User user = new User(emailField.getValue(), imageUrl.getValue(), firstName.getValue(),
                             lastName.getValue(), "", false,
                             null, null, null);
                     userFeignClient.addUser(user);
                     this.userMail.setText(emailField.getValue());
+                    VaadinServletService.getCurrentServletRequest().getSession()
+                            .setAttribute("email", emailField.getValue());
+                    UI.getCurrent().navigate("my-profile");
 
+                }
+                else{
+                    popUpNotification("Fill all the required fields.", NotificationVariant.LUMO_ERROR);
                 }
 
             }
@@ -261,5 +279,14 @@ public class MainLayout extends AppLayout {
         popUpDialog.add(formLayout);
         popUpDialog.open();
 
+    }
+
+    private void popUpNotification(String s, NotificationVariant lumo) {
+        Notification notification = new Notification();
+        notification.setDuration(3500);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(lumo);
+        notification.setText(s);
+        notification.open();
     }
 }

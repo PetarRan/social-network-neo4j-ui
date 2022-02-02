@@ -2,6 +2,7 @@ package com.petarran.application.views.finddabblers;
 
 
 import com.petarran.application.data.User;
+import com.petarran.application.feign_client.FollowsFeignClient;
 import com.petarran.application.feign_client.UserFeignClient;
 import com.petarran.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -10,13 +11,16 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,37 +36,53 @@ public class FindDabblersView extends Div {
     private static Grid<User> grid;
     private static Div hint;
     private final UserFeignClient userFeignClient;
+    private final FollowsFeignClient followsFeignClient;
 
-    public FindDabblersView(UserFeignClient userFeignClient) {
+    public FindDabblersView(UserFeignClient userFeignClient, FollowsFeignClient followsFeignClient) {
         this.userFeignClient = userFeignClient;
+        this.followsFeignClient = followsFeignClient;
         this.setupInvitationForm();
             this.setupGrid();
             this.refreshGrid();
     }
     private void setupInvitationForm() {
-            Collection<User> users = userFeignClient.findAllUsers();
+            Collection<User> usersList = new ArrayList<>();
             ComboBox<User> comboBox = new ComboBox<User>();
-            comboBox.setItems(users);
+            String loggedUser = VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                .toString();
+            userFeignClient.findAllUsers()
+                    .stream()
+                    .filter(e -> !e.getEmail().startsWith(loggedUser))
+                    .forEach(usersList::add);
+            comboBox.setItems(usersList);
             comboBox.setItemLabelGenerator(User::getEmail);
 
-            Button button = new Button("Send invite");
+            Button button = new Button("Follow", VaadinIcon.PLUS.create());
             button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             button.addClickListener(e -> {
-                //TODO sendInvitation(comboBox.getValue());
+                User user = userFeignClient.findUserByMail(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                        .toString());
+                if(followsFeignClient.amIFollowing(comboBox.getValue().getEmail(), user.getEmail())){
+                    followsFeignClient.followUser(user, comboBox.getValue().getEmail());
+                    popUpNotification("User Followed!", NotificationVariant.LUMO_PRIMARY);
+                }
+                else{
+                    popUpNotification("Already Following this user.", NotificationVariant.LUMO_PRIMARY);
+                }
+
+
+
                 comboBox.setValue(null);
             });
 
             HorizontalLayout layout = new HorizontalLayout(comboBox, button);
             layout.setFlexGrow(1, comboBox);
+            layout.setSpacing(true);
+            layout.setMargin(true);
 
             add(layout);
 
         addClassNames("find-dabblers-view", "flex", "flex-col", "h-full");
-        // Create UI
-        SplitLayout splitLayout = new SplitLayout();
-        splitLayout.setSizeFull();
-
-        add(splitLayout);
 
 
     }
@@ -98,12 +118,19 @@ public class FindDabblersView extends Div {
         grid.setItems(invitedPeople);
 
         hint = new Div();
-        hint.setText("No invitation has been sent");
-        hint.getStyle().set("padding", "var(--lumo-size-l)")
-                .set("text-align", "center").set("font-style", "italic")
-                .set("color", "var(--lumo-contrast-70pct)");
+        hint.add(new Image("https://i.imgur.com/6HG0BlT.png", "Travel together."));
+        hint.setSizeFull();
 
         add(hint, grid);
+    }
+
+    private void popUpNotification(String s, NotificationVariant lumo) {
+        Notification notification = new Notification();
+        notification.setDuration(3500);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(lumo);
+        notification.setText(s);
+        notification.open();
     }
 
 }

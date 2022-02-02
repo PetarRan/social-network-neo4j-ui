@@ -1,4 +1,4 @@
-package com.petarran.application.views.wall2;
+package com.petarran.application.views.walls;
 
 import com.petarran.application.components.leafletmap.LeafletMap;
 import com.petarran.application.data.Post;
@@ -17,33 +17,38 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.Arrays;
 import java.util.List;
 
-@PageTitle("Shared Wall")
-@Route(value = "wall2", layout = MainLayout.class)
-public class Wall2View extends Div implements AfterNavigationObserver {
+@PageTitle("Following")
+@Route(value = "following", layout = MainLayout.class)
+public class FollowingView extends Div {
 
-    Grid<Post> grid = new Grid<>();
     private final UserFeignClient userFeignClient;
     private final PostFeignClient postFeignClient;
 
-    public Wall2View( UserFeignClient userFeignClient, PostFeignClient postFeignClient) {
+    public FollowingView( UserFeignClient userFeignClient, PostFeignClient postFeignClient) {
         this.userFeignClient = userFeignClient;
         this.postFeignClient = postFeignClient;
 
         addClassName("wall2-view");
         setSizeFull();
-        grid.setHeight("100%");
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_NO_ROW_BORDERS);
-        grid.addComponentColumn(post -> createCard(post));
-        add(grid);
+
+        postFeignClient.findFollowersPosts(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("email")
+                .toString()).forEach(post -> {
+            add(createCard(post));
+        });
+
     }
 
     private HorizontalLayout createCard(Post wallPost) {
-        User personWhoPosted = userFeignClient.findOne(wallPost.getUserid()).getContent();
+        User personWhoPosted = userFeignClient.findUserByMail(wallPost.getUserid());
 
         HorizontalLayout card = new HorizontalLayout();
         card.addClassName("card");
@@ -66,11 +71,16 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         Span name = new Span(personWhoPosted.getEmail());
         name.addClassName("name");
         Span travelStatus = new Span();
-        if(personWhoPosted.getTravelling()){
-            travelStatus.setText("Travelling now.");
+        if(personWhoPosted.getTravelling()!=null){
+            if(personWhoPosted.getTravelling()){
+                travelStatus.setText("Travelling now.");
+            } else {
+                travelStatus.setText("Not Travelling.");
+            }
         } else {
-            travelStatus.setText("Not Travelling.");
+            travelStatus.setText("Travelling now.");
         }
+
         travelStatus.addClassName("date");
         header.add(name, travelStatus);
 
@@ -103,12 +113,12 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         Dialog dialog = new Dialog();
         VerticalLayout verticalLayout = new VerticalLayout();
         LeafletMap map = new LeafletMap();
-        map.setView(latitude, 	longitude, 11);
-        map.setWidth("700px");
-        map.setHeight("700px");
+        map.setView(latitude, 	longitude, 6);
+        map.setHeight("750px");
+        map.setWidth("750px");
 
-        dialog.setWidth("800px");
-        dialog.setHeight("800px");
+        dialog.setWidth("900px");
+        dialog.setHeight("900px");
         dialog.setCloseOnEsc(true);
         dialog.setCloseOnOutsideClick(true);
 
@@ -116,11 +126,5 @@ public class Wall2View extends Div implements AfterNavigationObserver {
         dialog.add(verticalLayout);
         dialog.open();
     }
-
-    @Override
-    public void afterNavigation(AfterNavigationEvent event) {
-        grid.setItems(postFeignClient.findAllPosts());
-    }
-
 
 }

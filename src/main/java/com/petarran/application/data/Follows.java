@@ -1,9 +1,6 @@
 package com.petarran.application.data;
 
-import org.springframework.data.neo4j.core.schema.GeneratedValue;
-import org.springframework.data.neo4j.core.schema.Id;
-import org.springframework.data.neo4j.core.schema.RelationshipProperties;
-import org.springframework.data.neo4j.core.schema.TargetNode;
+import org.springframework.data.neo4j.core.schema.*;
 
 @RelationshipProperties
 public class Follows {
@@ -14,17 +11,29 @@ public class Follows {
     @TargetNode
     private User userFollowed;
 
-    public Follows(User userFollowed) {
+    @Property
+    private String followedId;
+
+    public Follows(User userFollowed, String followedId) {
         this.id = null;
         this.userFollowed = userFollowed;
+        this.followedId = followedId;
     }
 
     public Follows withId(Long id) {
         if (this.id.equals(id)) {
             return this;
         } else {
-            return new Follows(this.userFollowed);
+            return new Follows(this.userFollowed, this.followedId);
         }
+    }
+
+    public String getFollowedId() {
+        return followedId;
+    }
+
+    public void setFollowedId(String followedId) {
+        this.followedId = followedId;
     }
 
     public Long getId() {
