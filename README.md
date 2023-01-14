@@ -32,17 +32,17 @@ This is the frontend of the Travel Social Media application built using Java Vaa
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/PetarRan/social-network-neo4j/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/PetarRan/social-network-neo4j-ui/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
 - **Petar** - [PetarRan](https://github.com/PetarRan)
 
-See also the list of [contributors](https://github.com/PetarRan/social-network-neo4j/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/PetarRan/social-network-neo4j-ui/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the Unlicence License - see the [LICENSE.md](https://github.com/PetarRan/social-network-neo4j/blob/master/LICENSE) file for details.
+This project is licensed under the Unlicence License - see the [LICENSE.md](https://github.com/PetarRan/social-network-neo4j-ui/blob/main/LICENSE.md) file for details.
 
 ## Acknowledgments
 
