@@ -42,7 +42,7 @@ See also the list of [contributors](https://github.com/PetarRan/social-network-n
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/PetarRan/social-network-neo4j/blob/master/LICENSE) file for details.
+This project is licensed under the Unlicence License - see the [LICENSE.md](https://github.com/PetarRan/social-network-neo4j/blob/master/LICENSE) file for details.
 
 ## Acknowledgments
 
