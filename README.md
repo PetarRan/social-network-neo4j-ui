@@ -1,4 +1,6 @@
-# Travel Social Media - Frontend
+# Travel Social Network - Frontend
+
+![image](https://user-images.githubusercontent.com/70757499/216840690-1b9316d7-b508-457d-bd24-9753793d063a.png)
 
 This is the frontend of the Travel Social Media application built using Java Vaadin Flow Framework and it communicates with the backend which is built using Spring and Neo4j as the graph database. The main focus of the project is to showcase the ability of Neo4j in handling complex relationships and data in a social media context.
 
